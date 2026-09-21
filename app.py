@@ -619,34 +619,28 @@ def home():
 def chat():
     user_data = request.json
     user_prompt = user_data.get("prompt", "")
-    # Optional creativity control from the new Temperature slider (defaults to 0.7)
-    try:
-        temperature = float(user_data.get("temperature", 0.7))
-    except (TypeError, ValueError):
-        temperature = 0.7
-
-    # DYNAMIC ENVIRONMENT FIX: 
-    # Use the dashboard Ngrok variable if present (Render). Otherwise, default to local machine loop.
-    base_url = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434")
     
-    # Strip any potential accidental trailing slashes to keep URL strings pristine
+    base_url = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434")
     base_url = base_url.rstrip('/')
     ollama_url = f"{base_url}/api/generate"
     
     payload = {
-        "model": "qwen2.5:7b",
+        "model": "qwen2.5:7b", 
         "prompt": user_prompt,
-        "stream": False,
-        "options": {
-            "temperature": temperature
-        }
+        "stream": False
     }
+    
+    # NGROK BYPASS HEADERS: Forces Ngrok to skip its warning wall for mobile requests
+    bypass_headers = {
+        "ngrok-skip-browser-warning": "true"
+    }
+    
     try:
-        # Added a 60-second timeout buffer to protect connections over cloud relays
-        response = requests.post(ollama_url, json=payload, timeout=60)
+        response = requests.post(ollama_url, json=payload, headers=bypass_headers, timeout=60)
         return jsonify({"response": response.json().get("response", "No response.")})
     except Exception as e:
         return jsonify({"response": f"Backend Error: {str(e)}"}), 500
+
 
 if __name__ == '__main__':
     # Force the app to scale dynamically with whatever port Render assigns in the cloud
