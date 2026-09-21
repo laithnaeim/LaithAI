@@ -1,3 +1,4 @@
+import os
 from flask import Flask, request, jsonify, render_template_string
 import requests
 
@@ -91,17 +92,28 @@ def home():
 def chat():
     user_data = request.json
     user_prompt = user_data.get("prompt", "")
-    ollama_url = "http://localhost:11434/api/generate"
+    
+    # DYNAMIC ENVIRONMENT FIX: 
+    # Use the dashboard Ngrok variable if present (Render). Otherwise, default to local machine loop.
+    base_url = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434")
+    
+    # Strip any potential accidental trailing slashes to keep URL strings pristine
+    base_url = base_url.rstrip('/')
+    ollama_url = f"{base_url}/api/generate"
+    
     payload = {
         "model": "robloxlua-ai",
         "prompt": user_prompt,
         "stream": False
     }
     try:
-        response = requests.post(ollama_url, json=payload)
+        # Added a 60-second timeout buffer to protect connections over cloud relays
+        response = requests.post(ollama_url, json=payload, timeout=60)
         return jsonify({"response": response.json().get("response", "No response.")})
     except Exception as e:
         return jsonify({"response": f"Backend Error: {str(e)}"}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    # Force the app to scale dynamically with whatever port Render assigns in the cloud
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
