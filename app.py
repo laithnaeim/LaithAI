@@ -9,7 +9,8 @@ HTML_TEMPLATE = """
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Laith AI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+    <title>Roblox Luau AI Studio</title>
     <style>
         :root {
             --bg-deep: #1A1A1E;
@@ -328,11 +329,98 @@ HTML_TEMPLATE = """
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--bg-slate-light); border-radius: 4px; }
+
+        /* ---------- Mobile menu button (hidden on desktop) ---------- */
+        .menu-toggle {
+            display: none;
+            background: var(--bg-slate);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-primary);
+            width: 34px;
+            height: 34px;
+            border-radius: 7px;
+            font-size: 16px;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            z-index: 15;
+        }
+        .sidebar-overlay.visible { display: block; }
+
+        /* ---------- Responsive breakpoints ---------- */
+        @media (max-width: 768px) {
+            body {
+                height: 100dvh; /* respects mobile browser chrome */
+                overflow: hidden;
+            }
+
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100dvh;
+                width: min(80vw, 280px);
+                transform: translateX(-100%);
+                transition: transform 0.2s ease;
+                z-index: 20;
+                padding: 16px;
+                padding-top: max(16px, env(safe-area-inset-top));
+            }
+            .sidebar.open { transform: translateX(0); }
+
+            .menu-toggle { display: flex; }
+
+            .chat-container { width: 100%; }
+
+            .chat-header {
+                padding: 14px 16px;
+                padding-top: max(14px, env(safe-area-inset-top));
+                gap: 10px;
+                font-size: 13.5px;
+            }
+            .chat-header span.header-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+            .chat-messages { padding: 14px; gap: 12px; }
+
+            .message {
+                max-width: 90%;
+                padding: 11px 14px;
+                font-size: 13.5px;
+            }
+
+            .code-block-wrapper pre { font-size: 12px; padding: 12px; }
+            .code-lang-tag { font-size: 10px; }
+            .copy-btn { font-size: 11px; padding: 4px 8px; }
+
+            .chat-input-area {
+                padding: 12px;
+                padding-bottom: max(12px, env(safe-area-inset-bottom));
+                gap: 8px;
+            }
+
+            textarea { height: 44px; padding: 10px; font-size: 13.5px; }
+
+            button#sendBtn { padding: 0 16px; font-size: 13px; }
+        }
+
+        @media (max-width: 420px) {
+            .message { max-width: 94%; font-size: 13px; }
+            .logo { font-size: 17px; }
+        }
     </style>
 </head>
 <body>
-    <div class="sidebar">
-        <div class="logo">Laith AI v0.1.1</div>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+    <div class="sidebar" id="sidebar">
+        <div class="logo">Laith AI v1</div>
         <button class="new-chat-btn" onclick="newSession()">+ New Session</button>
 
         <div>
@@ -349,15 +437,19 @@ HTML_TEMPLATE = """
                 </div>
                 <input type="range" id="tempSlider" min="0" max="1" step="0.05" value="0.7"
                        oninput="document.getElementById('tempValue').textContent = parseFloat(this.value).toFixed(2)">
-                <div class="param-hint">Advance and complexity of answers.</div>
+                <div class="param-hint">Lower = precise &amp; deterministic scripts. Higher = more creative variation.</div>
             </div>
         </div>
     </div>
 
     <div class="chat-container">
-        <div class="chat-header"><span class="status-dot"></span> Laith Assistant</div>
+        <div class="chat-header">
+            <button class="menu-toggle" id="menuToggle" onclick="toggleSidebar()" aria-label="Toggle sessions menu">☰</button>
+            <span class="status-dot"></span>
+            <span class="header-title">Laith Lua Assistant</span>
+        </div>
         <div class="chat-messages" id="chatMessages">
-            <div class="message ai-message"><p>Hello! I am your assistant. How can I help you today?</p></div>
+            <div class="message ai-message"><p>Hello! I am your Roblox Luau AI specialist. What kind of script are we building today?</p></div>
         </div>
         <div class="chat-input-area">
             <textarea id="userInput" placeholder="Ask for a Roblox script..." onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault(); sendMessage();}"></textarea>
@@ -366,9 +458,23 @@ HTML_TEMPLATE = """
     </div>
 
     <script>
+        // ---------- Mobile sidebar drawer ----------
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('visible');
+        }
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('sidebarOverlay').classList.remove('visible');
+        }
+
         // ---------- Mock session sidebar ----------
         const mockSessions = [
-            "Welcome Session",
+            "Leaderboard DataStore Fix",
+            "Humanoid Walkspeed Sprint",
+            "Kill Brick Script",
+            "Simple Shop GUI",
+            "Round-based Game Loop"
         ];
         let activeSession = 0;
 
@@ -379,7 +485,7 @@ HTML_TEMPLATE = """
                 const el = document.createElement('div');
                 el.className = 'session-item' + (i === activeSession ? ' active' : '');
                 el.textContent = name;
-                el.onclick = () => { activeSession = i; renderSessions(); };
+                el.onclick = () => { activeSession = i; renderSessions(); closeSidebar(); };
                 list.appendChild(el);
             });
         }
@@ -387,6 +493,7 @@ HTML_TEMPLATE = """
             mockSessions.unshift('New Session');
             activeSession = 0;
             renderSessions();
+            closeSidebar();
         }
         renderSessions();
 
