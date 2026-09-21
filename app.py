@@ -102,7 +102,7 @@ def chat():
     ollama_url = f"{base_url}/api/generate"
     
     payload = {
-        "model": "robloxlua-ai",
+        "model": "qwen2.5:7b",
         "prompt": user_prompt,
         "stream": False
     }
