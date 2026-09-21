@@ -10,7 +10,7 @@ HTML_TEMPLATE = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-    <title>Roblox Luau AI Studio</title>
+    <title>Laith Ai</title>
     <style>
         :root {
             --bg-deep: #1A1A1E;
@@ -420,7 +420,7 @@ HTML_TEMPLATE = """
 <body>
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
     <div class="sidebar" id="sidebar">
-        <div class="logo">Laith AI v1</div>
+        <div class="logo">Laith AI v0.1.1</div>
         <button class="new-chat-btn" onclick="newSession()">+ New Session</button>
 
         <div>
@@ -437,7 +437,7 @@ HTML_TEMPLATE = """
                 </div>
                 <input type="range" id="tempSlider" min="0" max="1" step="0.05" value="0.7"
                        oninput="document.getElementById('tempValue').textContent = parseFloat(this.value).toFixed(2)">
-                <div class="param-hint">Lower = precise &amp; deterministic scripts. Higher = more creative variation.</div>
+                <div class="param-hint">Complexity of answers.</div>
             </div>
         </div>
     </div>
@@ -446,10 +446,10 @@ HTML_TEMPLATE = """
         <div class="chat-header">
             <button class="menu-toggle" id="menuToggle" onclick="toggleSidebar()" aria-label="Toggle sessions menu">☰</button>
             <span class="status-dot"></span>
-            <span class="header-title">Laith Lua Assistant</span>
+            <span class="header-title">Laith Assistant</span>
         </div>
         <div class="chat-messages" id="chatMessages">
-            <div class="message ai-message"><p>Hello! I am your Roblox Luau AI specialist. What kind of script are we building today?</p></div>
+            <div class="message ai-message"><p>Hello! I am your assistant. How can I help you today?</p></div>
         </div>
         <div class="chat-input-area">
             <textarea id="userInput" placeholder="Ask for a Roblox script..." onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault(); sendMessage();}"></textarea>
@@ -470,11 +470,7 @@ HTML_TEMPLATE = """
 
         // ---------- Mock session sidebar ----------
         const mockSessions = [
-            "Leaderboard DataStore Fix",
-            "Humanoid Walkspeed Sprint",
-            "Kill Brick Script",
-            "Simple Shop GUI",
-            "Round-based Game Loop"
+            "New Session",
         ];
         let activeSession = 0;
 
