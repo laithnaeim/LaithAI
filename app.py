@@ -9,7 +9,7 @@ HTML_TEMPLATE = """
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Roblox Luau AI Studio</title>
+    <title>Laith AI</title>
     <style>
         :root {
             --bg-deep: #1A1A1E;
